@@ -10,6 +10,7 @@
 #zerotier
 #Turbo ACC
 #访客网络
-
+#zarm虚拟内存
+#u游戏加速
 为了方便朋友们！我奉上自己的.config文件
 复制一下文件更新到自己的config里更新即可！
