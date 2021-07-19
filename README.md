@@ -12,7 +12,6 @@
 #Turbo ACC
 #访客网络
 #adg去广告
-#china-ng
 #openclash
 #jd签到
 #uugame加速
