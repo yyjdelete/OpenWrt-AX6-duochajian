@@ -46,4 +46,4 @@ git clone https://github.com/pymumu/openwrt-smartdns package/smartdns
 git clone -b lede https://github.com/pymumu/luci-app-smartdns.git package/luci-app-smartdns
 
 #添加chinadns-ng防污染分配合ssp还行
-git clone -b luci https://github.com/pexcn/openwrt-chinadns-ng.git package/luci-app-chinadns-ng
+#git clone -b luci https://github.com/pexcn/openwrt-chinadns-ng.git package/luci-app-chinadns-ng
