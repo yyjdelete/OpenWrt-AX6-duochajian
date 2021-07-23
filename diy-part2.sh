@@ -32,7 +32,7 @@ sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\
 
 #添加额外非必须软件包
 #adguardhome广告拦截很强大
-git clone https://github.com/kongfl888/luci-app-adguardhome.git package/luci-app-adguardhome
+git clone https://github.com/rufengsuixing/luci-app-adguardhome.git package/luci-app-adguardhome
 
 #bypass科学学习
 #git clone https://github.com/garypang13/luci-app-bypass package/luci-app-bypass
