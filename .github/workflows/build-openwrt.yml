@@ -28,8 +28,10 @@ env:
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: true
-  UPLOAD_WETRANSFER: true
+  UPLOAD_AIRPORTAL: true
+  UPLOAD_WENSHUSHU: true
+  UPLOAD_MUSETRANSFER: true
+  UPLOAD_QUICKFILE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
@@ -134,22 +136,38 @@ jobs:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
-    - name: Upload firmware to cowtransfer
-      id: cowtransfer
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+    - name: Upload firmware to Airportal
+      id: airportal
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_AIRPORTAL == 'true' && !cancelled()
       run: |
         curl -fsSL git.io/file-transfer | sh
-        ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
-        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-        echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
-    - name: Upload firmware to WeTransfer
-      id: wetransfer
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+        ./transfer arp --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee airportal.log
+        echo "::warning file=airportal.cn::$(cat airportal.log | grep https)"
+        echo "::set-output name=url::$(cat airportal.log | grep https | cut -f3 -d" ")"
+    - name: Upload firmware to Wenshushu
+      id: wenshushu
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WENSHUSHU == 'true' && !cancelled()
       run: |
         curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
-        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-        echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
+        ./transfer wss --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee wenshushu.log
+        echo "::warning file=wenshushu.cn::$(cat wenshushu.log | grep https)"
+        echo "::set-output name=url::$(cat wenshushu.log | grep https | cut -f3 -d" ")"
+    - name: Upload firmware to Musetransfer
+      id: musetransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_MUSETRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer muse --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee musetransfer.log
+        echo "::warning file=musetransfer.com::$(cat musetransfer.log | grep https)"
+        echo "::set-output name=url::$(cat musetransfer.log | grep https | cut -f3 -d" ")"
+    - name: Upload firmware to Quickfile
+      id: quickfile
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_QUICKFILE == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer qf -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee quickfile.log
+        echo "::warning file=quickfile.cn::$(cat quickfile.log | grep https)"
+        echo "::set-output name=url::$(cat quickfile.log | grep https | cut -f3 -d" ")"
     - name: Generate release tag
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
