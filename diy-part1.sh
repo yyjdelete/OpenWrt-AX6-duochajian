@@ -13,13 +13,10 @@
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
+#echo 'src-git jerryk https://github.com/jerrykuku/openwrt-package' >>feeds.conf.default
 
 # Add a feed source
 #sed -i '$a src-git lienol https://github.com/Lienol/openwrt-package' feeds.conf.default
 
-git revert -n -X theirs edbd8d2e9839357f3a4f0a06174d243f362b1544
-git add target/linux/ipq807x/files-5.10/arch/arm64/boot/dts/qcom/ipq8071-ax*.dts*
-cp target/linux/ipq807x/files-5.10/arch/arm64/boot/dts/qcom/ipq8071-ax*.dts target/linux/ipq807x/files-5.15/arch/arm64/boot/dts/qcom/
-cp $GITHUB_WORKSPACE/files/ipq8071-ax3600_5.15.dtsi target/linux/ipq807x/files-5.15/arch/arm64/boot/dts/qcom/ipq8071-ax3600.dtsi
-cp $GITHUB_WORKSPACE/files/900-arm64-dts-add-OpenWrt-DTS-files_5.10.patch target/linux/ipq807x/patches-5.10/900-arm64-dts-add-OpenWrt-DTS-files.patch
-cp $GITHUB_WORKSPACE/files/0900-arm64-dts-add-OpenWrt-DTS-files_5.15.patch target/linux/ipq807x/patches-5.15/0900-arm64-dts-add-OpenWrt-DTS-files.patch
+git config --global user.name "github-actions[bot]"
+git am $GITHUB_WORKSPACE/0001-ipq807x-add-xiaomi-devices-support.patch

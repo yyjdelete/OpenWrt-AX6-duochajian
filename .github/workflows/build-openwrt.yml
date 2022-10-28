@@ -136,35 +136,36 @@ jobs:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
+    - name: Prepare file-transfer
+      id: file-transfer
+      if: steps.organize.outputs.status == 'success' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
     - name: Upload firmware to Airportal
       id: airportal
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_AIRPORTAL == 'true' && !cancelled()
       run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer arp --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee airportal.log
+        ./transfer arp -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee airportal.log
         echo "::warning file=airportal.cn::$(cat airportal.log | grep https)"
         echo "::set-output name=url::$(cat airportal.log | grep https | cut -f3 -d" ")"
     - name: Upload firmware to Wenshushu
       id: wenshushu
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_WENSHUSHU == 'true' && !cancelled()
       run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer wss --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee wenshushu.log
+        ./transfer wss -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee wenshushu.log
         echo "::warning file=wenshushu.cn::$(cat wenshushu.log | grep https)"
         echo "::set-output name=url::$(cat wenshushu.log | grep https | cut -f3 -d" ")"
     - name: Upload firmware to Musetransfer
       id: musetransfer
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_MUSETRANSFER == 'true' && !cancelled()
       run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer muse --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee musetransfer.log
+        ./transfer muse -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee musetransfer.log
         echo "::warning file=musetransfer.com::$(cat musetransfer.log | grep https)"
         echo "::set-output name=url::$(cat musetransfer.log | grep https | cut -f3 -d" ")"
     - name: Upload firmware to Quickfile
       id: quickfile
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_QUICKFILE == 'true' && !cancelled()
       run: |
-        curl -fsSL git.io/file-transfer | sh
         ./transfer qf -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee quickfile.log
         echo "::warning file=quickfile.cn::$(cat quickfile.log | grep https)"
         echo "::set-output name=url::$(cat quickfile.log | grep https | cut -f3 -d" ")"
@@ -174,8 +175,8 @@ jobs:
       run: |
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
-        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
-        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
+        [ $UPLOAD_COWTRANSFER = true ] && echo " [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
+        [ $UPLOAD_WETRANSFER = true ] && echo " [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
         echo "::set-output name=status::success"
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
