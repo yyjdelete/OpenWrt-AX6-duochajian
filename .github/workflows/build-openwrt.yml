@@ -28,10 +28,10 @@ env:
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_AIRPORTAL: true
-  UPLOAD_WENSHUSHU: false
+  UPLOAD_CATBOX: true
+  UPLOAD_FILEIO: false
+  UPLOAD_NULL: true
   UPLOAD_MUSETRANSFER: false
-  UPLOAD_QUICKFILE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
@@ -47,11 +47,17 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        echo "pre rm: $(date -Is)"
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        echo "pre apt update: $(date -Is)"
         sudo -E apt-get -qq update
+        echo "pre apt install: $(date -Is)"
         sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2004)
+        echo "pre apt autoremove: $(date -Is)"
         sudo -E apt-get -qq autoremove --purge
+        echo "pre apt clean: $(date -Is)"
         sudo -E apt-get -qq clean
+        echo "pre init env: $(date -Is)"
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
@@ -140,21 +146,29 @@ jobs:
       id: file-transfer
       if: steps.organize.outputs.status == 'success' && !cancelled()
       run: |
-        curl -fsSL git.io/file-transfer | sh
-    - name: Upload firmware to Airportal
-      id: airportal
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_AIRPORTAL == 'true' && !cancelled()
+        echo curl -sL https://git.io/file-transfer | bash -s beta
+        curl -fsSL git.io/file-transfer | sh -s beta
+    - name: Upload firmware to CatBox
+      id: catbox
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_CATBOX == 'true' && !cancelled()
       run: |
-        ./transfer arp -p 64 --no-progress ${FIRMWARE} 2>&1 | tee airportal.log
-        echo "::warning file=airportal.cn::$(cat airportal.log | grep https)"
-        echo "::set-output name=url::$(cat airportal.log | grep https | cut -f3 -d" ")"
-    - name: Upload firmware to Wenshushu
-      id: wenshushu
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WENSHUSHU == 'true' && !cancelled()
+        ./transfer cat --no-progress ${FIRMWARE} 2>&1 | tee catbox.log
+        echo "::warning file=catbox.moe::$(cat catbox.log | grep https)"
+        echo "::set-output name=url::$(cat catbox.log | grep https | cut -f3 -d" ")"
+    - name: Upload firmware to Fileio
+      id: fileio
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_FILEIO == 'true' && !cancelled()
       run: |
-        ./transfer wss -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee wenshushu.log
-        echo "::warning file=wenshushu.cn::$(cat wenshushu.log | grep https)"
-        echo "::set-output name=url::$(cat wenshushu.log | grep https | cut -f3 -d" ")"
+        ./transfer fio --no-progress ${FIRMWARE} 2>&1 | tee fileio.log
+        echo "::warning file=file.io::$(cat fileio.log | grep https)"
+        echo "::set-output name=url::$(cat fileio.log | grep https | cut -f3 -d" ")"
+    - name: Upload firmware to Null
+      id: _null
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_NULL == 'true' && !cancelled()
+      run: |
+        ./transfer null --no-progress ${FIRMWARE} 2>&1 | tee null.log
+        echo "::warning file=0x0.st::$(cat null.log | grep https)"
+        echo "::set-output name=url::$(cat null.log | grep https | cut -f3 -d" ")"
     - name: Upload firmware to Musetransfer
       id: musetransfer
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_MUSETRANSFER == 'true' && !cancelled()
@@ -162,13 +176,6 @@ jobs:
         ./transfer muse -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee musetransfer.log
         echo "::warning file=musetransfer.com::$(cat musetransfer.log | grep https)"
         echo "::set-output name=url::$(cat musetransfer.log | grep https | cut -f3 -d" ")"
-    - name: Upload firmware to Quickfile
-      id: quickfile
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_QUICKFILE == 'true' && !cancelled()
-      run: |
-        ./transfer qf -p 16 --no-progress ${FIRMWARE} 2>&1 | tee quickfile.log
-        echo "::warning file=quickfile.cn::$(cat quickfile.log | grep https)"
-        echo "::set-output name=url::$(cat quickfile.log | grep https | cut -f3 -d" ")"
     - name: Generate release tag
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
